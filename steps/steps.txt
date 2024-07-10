@@ -1,0 +1,74 @@
+
+1.--path change --
+
+
+2. --install npm--
+	npm init -y 
+
+3.--install express --
+	npm install express  
+
+4.--insert this code in server.js file--
+	const express = require("express");
+	const app = express();
+
+5.--Nodemon installing--
+	https://www.npmjs.com/package/nodemon  
+	
+	npm install -g nodemon
+
+6.--create middleware in server.js file --
+
+	//midleware
+	app.use((req,res,next)=>{
+	    console.log("path"+ req.path + "method" +req.method );
+	    next();
+ 	 });
+
+7.--envirenment file creation in backend folder--
+	 .env
+
+8.--put in .env file --
+	PORT=4000
+
+9.--dotenv installing --
+
+	https://www.npmjs.com/package/dotenv  //link foe dotenv
+
+	npm install dotenv
+
+10.--config panrathukkanathuku--
+	--input in server.js file--
+
+	require('dotenv').config();
+
+11.--db kkaanathu--
+	 --input in .env file--
+
+	MONGO_URI=mongodb+srv://vino:vino@vino.jocs1u5.mongodb.net/?retryWrites=true&w=majority&appName=vino
+
+12.--mongoose install link irkku--
+	https://mongoosejs.com/
+	-- mongoose installing -- path in out of backend folder--
+
+	npm install mongoose   
+
+13.   -- input in server.js file--
+
+	const mongoose = require('mongoose');
+
+14.---DB connection want input in server.js file--
+
+	mongoose.connect(process.env.MONGO_URI).then(()=>{
+    	app.listen(process.env.port,() => {
+        console.log("DB Connected Successfully listening to "+process.env.port);
+    });
+  })
+.catch((error)=>console.log(error));
+
+
+15.
+
+
+
+	

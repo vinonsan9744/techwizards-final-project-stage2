@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['bull','elephant']
+
+roboflow:
+  workspace: vinonsan-pk5qs
+  project: bull-detection-chnay
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/vinonsan-pk5qs/bull-detection-chnay/dataset/1
