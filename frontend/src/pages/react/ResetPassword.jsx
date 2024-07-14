@@ -4,10 +4,13 @@ import React from "react";
 import Form from 'react-bootstrap/Form';
 import "./../style/ResetPassword.css";
 import Button from 'react-bootstrap/Button';
-
+import { useNavigate } from 'react-router-dom';
 import { MdLockReset } from "react-icons/md";
 
-function ResetPassword() {
+
+function ResetPassword() 
+{
+  const navigate = useNavigate();
   return <>
   
     {/* ..........this is the main division of screen.......... */}
@@ -34,6 +37,7 @@ function ResetPassword() {
         </Form.Floating>
       
         <Button variant="success" className="ResetPassword-sumbit-button">Reset </Button>{' '}
+        <div className="ResetPassword-back"><p  onClick={() => navigate('/')}>Back to login</p> </div>
      
 
           </div>
