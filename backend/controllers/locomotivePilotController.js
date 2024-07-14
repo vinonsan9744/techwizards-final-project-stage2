@@ -77,4 +77,18 @@ const updateTaskById = async (req, res) => {
     }
   };
 
-module.exports={createTask,getTasks,getSingleTask,getTaskById,updateTaskById};
+// To login locomotive pilot
+const loginTask = async (req, res) => {
+    const { locomotivePilotID, password } = req.body;
+    try {
+        const locomotivePilot = await locomotivePilotModel.findOne({ locomotivePilotID });
+        if (!locomotivePilot || locomotivePilot.password !== password) {
+            return res.status(401).json({ error: 'Invalid locomotivePilotID or password' });
+        }
+        res.status(200).json({ message: 'Login successful', locomotivePilot });
+    } catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+};
+
+module.exports={createTask,getTasks,getSingleTask,getTaskById,updateTaskById,loginTask};

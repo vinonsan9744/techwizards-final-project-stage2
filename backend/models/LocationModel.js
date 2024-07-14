@@ -22,8 +22,8 @@ const LocationSchema = new Schema(
             required: true, //is this need? because some station don't have contact number
             match: [/^\d+$/, 'Phone number must contain only numeric characters'],
             
-            minlength:10,
-            maxlenth:12
+            minlength:9,
+            maxlenth:9
         }
     },
     {

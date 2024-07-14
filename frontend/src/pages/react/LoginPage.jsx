@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import Axios for making HTTP requests
 import { GiElephant } from "react-icons/gi";
 import { MdLandslide } from "react-icons/md";
 import { FaTrainSubway } from "react-icons/fa6";
@@ -28,14 +29,8 @@ function LoginPage() {
     setDetails({ ...details, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Dummy credentials
-    const dummyCredentials = {
-      option1: { id: "LID001", password: "password123" },
-      option2: { id: "AID001", password: "password123" },
-    };
 
     const { id, password } = details;
 
@@ -58,19 +53,29 @@ function LoginPage() {
       return;
     }
 
-    // Validate user input against dummy credentials
-    if (
-      selectedOption &&
-      dummyCredentials[selectedOption].id === id &&
-      dummyCredentials[selectedOption].password === password
-    ) {
+    try {
+      let loginEndpoint = "";
+      let payload = { id, password }; // Default payload structure
+
+      if (selectedOption === "option1") {
+        // Locomotive pilot login endpoint
+        loginEndpoint = "http://localhost:4000/api/locomotivePilot/login";
+        payload = { locomotivePilotID: id, password }; // Adjust payload for locomotive pilot
+      } else if (selectedOption === "option2") {
+        // Admin login endpoint
+        loginEndpoint = "http://localhost:4000/api/AdministrativeOfficer/login";
+        payload = { AD_ID: id, Password: password }; // Adjust payload for admin
+      }
+
+      const response = await axios.post(loginEndpoint, payload);
+      const { data } = response;
+
       // Login successful
       setError(""); // Clear any previous errors
 
       // Clear the form inputs
       setDetails({ id: "", password: "" });
 
-      /// Determine where to navigate based on selected option
       if (selectedOption === "option1") {
         // Navigate to home page for Locomotive pilot
         navigate("/selectroute");
@@ -78,9 +83,10 @@ function LoginPage() {
         // Navigate to admin home page
         navigate("/adminhomepage");
       }
-    } else {
-      // IDs or passwords do not match
-      setError("Invalid ID or password.");
+    } catch (error) {
+      // Handle error responses from backend
+      const errorMessage = error.response ? error.response.data.error : "Something went wrong. Please try again.";
+      setError(errorMessage);
       setShowErrorModal(true);
     }
   };
