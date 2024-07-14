@@ -15,7 +15,7 @@ const LocationSchema = new Schema(
         locationType: {
             type: String,
             required: true,
-            enum: ['Northern', 'Mannar','Mihintale','Batticaloa','Matale','Main','Puttalam','Kelani Valley','Costal'] // Adjusted enum values  need to change 
+            enum: ['Northern', 'Mannar','Mihintale','Batticaloa','Matale','Main','Puttalam','Kelani Valley','Costal','Trincomalee'] // Adjusted enum values  need to change 
         },
         locationContactNumber: {
             type: String,

@@ -33,8 +33,49 @@ function RegisterPage() {
     });
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+  // validation for text filed 
+  if (formData.locomotiveName.trim() === "" && formData.locomotiveEmail.trim() === "" && formData.locomotivePhoneNo.trim() === "") {
+    setError("All fields are required.");
+    setShowErrorModal(true);
+    return;
+  } else if (formData.locomotiveName.trim() === "") {
+    setError("Locomotive pilot field is empty.");
+    setShowErrorModal(true);
+    return;
+  } else if (formData.locomotiveEmail.trim() === "") {
+    setError("Locomotive Email field is empty.");
+    setShowErrorModal(true);
+    return;
+  } else if (formData.locomotivePhoneNo.trim() === "") {
+    setError("Locomotive Phone Number field is empty.");
+    setShowErrorModal(true);
+    return;
+  }
+
+  const nameRegex = /^[a-zA-Z\s]*$/;
+  if (!nameRegex.test(formData.locomotiveName.trim())) {
+    setError("Locomotive Name should not contain numbers or symbols.");
+    setShowErrorModal(true);
+    return;
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(formData.locomotiveEmail.trim())) {
+    setError("Invalid email format.");
+    setShowErrorModal(true);
+    return;
+  }
+
+  const phoneRegex = /^[0-9\s]*$/;
+  if (!phoneRegex.test(formData.locomotivePhoneNo.trim())) {
+    setError("Phone number should not contain letters or symbols.");
+    setShowErrorModal(true);
+    return;
+  }
 
     try {
       const response = await axios.post('http://localhost:4000/api/locomotivePilot', formData);
@@ -64,6 +105,8 @@ function RegisterPage() {
   };
 
   const handleCloseErrorModal = () => setShowErrorModal(false);
+
+
 
   return (
     <div>
