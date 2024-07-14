@@ -54,7 +54,7 @@ const locomotivePilotSchema = new mongoose.Schema({
         },
 
         minlength: 10,
-        maxlength: 12
+        maxlength: 10
 
     }
 }, {

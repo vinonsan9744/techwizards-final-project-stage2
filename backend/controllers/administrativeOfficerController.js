@@ -37,4 +37,18 @@ const getSingleTask = async (req,res) => {
     }
 };
 
-module.exports={createTask,getTasks,getSingleTask};
+// To login locomotive pilot
+const loginTask = async (req, res) => {
+    const { AD_ID, Password } = req.body;
+    try {
+        const AdministrativeOfficer = await administrativeOfficerModel.findOne({ AD_ID });
+        if (!AdministrativeOfficer || AdministrativeOfficer.Password !== Password) {
+            return res.status(401).json({ error: 'Invalid AD_ID or password' });
+        }
+        res.status(200).json({ message: 'Login successful', AdministrativeOfficer });
+    } catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+};
+
+module.exports={createTask,getTasks,getSingleTask,loginTask};
