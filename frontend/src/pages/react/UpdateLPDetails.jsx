@@ -12,13 +12,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function UpdateLPDetails() {
+
   const navigate = useNavigate();
-  const [pilotIds, setPilotIds] = useState([]);
+
+  
   const [selectedPilotId, setSelectedPilotId] = useState('');
   const [lpName, setLPName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
-
   const [initialLPName, setInitialLPName] = useState('');
   const [initialPhoneNumber, setInitialPhoneNumber] = useState('');
   const [initialEmail, setInitialEmail] = useState('');
@@ -27,6 +28,7 @@ function UpdateLPDetails() {
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('');
 
+  const [pilotIds, setPilotIds] = useState([]);
   useEffect(() => {
     const fetchPilotIds = async () => {
       try {
@@ -36,13 +38,13 @@ function UpdateLPDetails() {
         console.error('Error fetching pilot IDs:', error);
       }
     };
-
     fetchPilotIds();
   }, []);
 
+
+
   const handlePilotIdSelect = async (id) => {
     setSelectedPilotId(id);
-
     try {
       const response = await axios.get(`http://localhost:4000/api/locomotivePilot/locomotivePilotID/${id}`);
       const pilot = response.data;
@@ -58,6 +60,7 @@ function UpdateLPDetails() {
     }
   };
 
+  
   const handleSubmit = async () => {
     try {
       const response = await axios.patch(`http://localhost:4000/api/locomotivePilot/locomotivePilotID/${selectedPilotId}`, {
@@ -65,14 +68,11 @@ function UpdateLPDetails() {
         locomotivePhoneNo: phoneNumber,
         locomotiveEmail: email
       });
-
-      console.log('Pilot details updated:', response.data);
       setModalMessage('Pilot details updated successfully.');
       setModalType('success');
       setShowModal(true);
 
     } catch (error) {
-      console.error('Error updating pilot details:', error);
       setModalMessage('Error updating pilot details. Please try again.');
       setModalType('error');
       setShowModal(true);
@@ -102,7 +102,6 @@ function UpdateLPDetails() {
                   />
                 </FloatingLabel>
                 <DropdownButton
-                  as={InputGroup.Append}
                   variant="outline-secondary"
                   title=" LP Id"
                   id="input-group-dropdown-2"
