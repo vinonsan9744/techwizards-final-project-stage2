@@ -36,7 +36,7 @@ function ResetPassword()
             <label htmlFor="floatingEmail" className="ResetPassword-email-label">User name</label>
         </Form.Floating>
       
-        <Button variant="success" className="ResetPassword-sumbit-button">Reset </Button>{' '}
+        <Button variant="#387373" className="ResetPassword-sumbit-button">Reset </Button>{' '}
         <div className="ResetPassword-back"><p  onClick={() => navigate('/')}>Back to login</p> </div>
      
 
