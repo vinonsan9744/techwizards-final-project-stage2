@@ -18,8 +18,10 @@ import axios from 'axios';
 
 function UpdateHazard() {
   const navigate = useNavigate();
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const toggleCalendar = () => setShowCalendar(!showCalendar);
 
   const [locationTypes, setLocationTypes] = useState([]);
   const [selectedLocationType, setSelectedLocationType] = useState('');
@@ -27,7 +29,7 @@ function UpdateHazard() {
   const [selectedLocationName, setSelectedLocationName] = useState('');
   // const [locationHazards, setLocationHazards] = useState([]);
   const [selectedHazard, setSelectedHazard] = useState('');
-  const toggleCalendar = () => setShowCalendar(!showCalendar);
+ 
 
 
   // Fetch location types on component mount
@@ -60,9 +62,9 @@ function UpdateHazard() {
         console.error('Error fetching location names:', error);
       }
     };
-
     fetchLocationNames();
   }, [selectedLocationType]);
+
 
   useEffect(() => {
     setFormData((prevFormData) => ({
@@ -179,7 +181,6 @@ function UpdateHazard() {
         description: '',
         locomotivePilotID: ''
       }); // Clear the form inputs
-
 
     } catch (error) {
       console.error('Hazard Repoting failed:', error); // Log the error
