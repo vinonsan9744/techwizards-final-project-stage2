@@ -43,7 +43,7 @@ const getTasksByLocationName = async (req, res) => {
         const hazards = await HazardModel.find({ locationName: locationName });
 
         if (!hazards || hazards.length === 0) {
-            return res.status(404).json({ error: 'No hazards found for this location' });
+            return res.status(404).json({ message: 'No hazards found for this location' });
         }
 
         res.status(200).json(hazards);

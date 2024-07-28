@@ -68,11 +68,13 @@ function UpdateLPDetails() {
         locomotivePhoneNo: phoneNumber,
         locomotiveEmail: email
       });
+
       setModalMessage('Pilot details updated successfully.');
       setModalType('success');
       setShowModal(true);
 
     } catch (error) {
+
       setModalMessage('Error updating pilot details. Please try again.');
       setModalType('error');
       setShowModal(true);
@@ -102,6 +104,7 @@ function UpdateLPDetails() {
                   />
                 </FloatingLabel>
                 <DropdownButton
+
                   variant="outline-secondary"
                   title=" LP Id"
                   id="input-group-dropdown-2"

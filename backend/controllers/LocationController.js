@@ -1,4 +1,5 @@
 const LocationModel = require ("../models/LocationModel");
+const mongoose = require("mongoose");
 
 // to create a post method 
 const createTask = async(req,res)=>{
@@ -55,6 +56,21 @@ const getTasksByLocationName = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+// Delete task - DELETE
 
+const deleteTask = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ error: "Location Not Found" });
+    }
+  
+    try {
+      const Location = await LocationModel.findByIdAndDelete(id);
+      res.status(200).json(Location);
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  };
+  
 
-module.exports={createTask,getTasks,getFirstLastPostedData,getTasksByLocationName};
+module.exports={createTask,getTasks,getFirstLastPostedData,getTasksByLocationName,deleteTask};
