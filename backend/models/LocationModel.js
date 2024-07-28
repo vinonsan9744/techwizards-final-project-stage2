@@ -10,7 +10,6 @@ const LocationSchema = new Schema(
         locationName: {
             type: String,
             required: true,
-            unique:true
         },
         locationType: {
             type: String,

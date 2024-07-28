@@ -169,7 +169,7 @@ function ApproveHazard() {
                       </div>
                       <div className="ApproveHazard-detail-station-phone-box container-flex">
                       <p>Station Phone No:</p>
-                      <p>{selectedNotification && `${selectedNotification.locomotivePilotPhoneNo}`}</p>
+                      <p>{selectedNotification && `${selectedNotification.locationContactNumber}`}</p>
                       </div>
                     </div>
                     <div className="ApproveHazard-description-box container-flex">

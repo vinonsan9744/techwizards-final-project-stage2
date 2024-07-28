@@ -66,13 +66,13 @@ function UpdateLPDetails() {
         locomotiveEmail: email
       });
 
-      console.log('Pilot details updated:', response.data);
+      // console.log('Pilot details updated:', response.data);
       setModalMessage('Pilot details updated successfully.');
       setModalType('success');
       setShowModal(true);
 
     } catch (error) {
-      console.error('Error updating pilot details:', error);
+      // console.error('Error updating pilot details:', error);
       setModalMessage('Error updating pilot details. Please try again.');
       setModalType('error');
       setShowModal(true);
@@ -102,7 +102,7 @@ function UpdateLPDetails() {
                   />
                 </FloatingLabel>
                 <DropdownButton
-                  as={InputGroup.Append}
+                  // as={InputGroup.Append}
                   variant="outline-secondary"
                   title=" LP Id"
                   id="input-group-dropdown-2"
