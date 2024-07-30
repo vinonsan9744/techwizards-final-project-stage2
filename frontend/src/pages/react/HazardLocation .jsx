@@ -133,6 +133,7 @@ function HazardLocation() {
                 style={{ height: '5px' }}
                 aria-label="Text input with dropdown button"
                 id="update-hazard-input"
+                name="locationName"
                 value={selectedLocationName}
                 onChange={(e) => setSelectedLocationName(e.target.value)} 
               />
