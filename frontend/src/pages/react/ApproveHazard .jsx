@@ -13,6 +13,7 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 
 function ApproveHazard() {
+
   const [hazardCount, setHazardCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -22,40 +23,37 @@ function ApproveHazard() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [pilotName, setPilotName] = useState('');
-  const [pilotPhone, setPilotPhone] = useState('');
   const [locationHazards, setLocationHazards] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); 
+  const [showDeclineConfirmModal, setShowDeclineConfirmModal] = useState(false);
+  const [selectedHazardId, setSelectedHazardId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:4000/api/locomotivePilotHazard')
+    try {
+      axios.get('http://localhost:4000/api/locomotivePilotHazard')
       .then(response => {
         setHazardCount(response.data.length);
         setNotifications(response.data);
       })
-      .catch(error => {
-        console.error('Error fetching hazard data:', error);
-      });
+    } catch (error) {
+      console.error('Error fetching hazard data:', error);
+    }
   }, []);
 
   const handleNotificationClick = () => {
     setShowModal(true);
   };
-
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
-  const markAsRead = async (hazardId, locomotivePilotID) => {
+  const markAsRead = async (hazardId) => {
     try {
       const hazardResponse = await axios.get(`http://localhost:4000/api/locomotivePilotHazard/hazardID/${hazardId}`);
       setSelectedNotification(hazardResponse.data);
+      setSelectedHazardId(hazardId);
       setShowModal(false);
-
-      // Fetch locomotive pilot details using locomotivePilotID
-      const pilotResponse = await axios.get(`http://localhost:4000/api/locomotivePilot/${locomotivePilotID}`);
-      setPilotName(pilotResponse.data.name);
-      setPilotPhone(pilotResponse.data.phone);
     } catch (error) {
       console.error('Error fetching hazard or pilot details:', error);
     }
@@ -66,13 +64,6 @@ function ApproveHazard() {
       setInputHazard(value);
     } else if (type === 'location') {
       setInputLocation(value);
-      // Fetch hazards for the selected location
-      try {
-        const response = await axios.get(`http://localhost:4000/api/hazard/locationName/${value}`);
-        setLocationHazards(response.data);
-      } catch (error) {
-        console.error('Error fetching hazards:', error);
-      }
     }
   };
 
@@ -101,29 +92,84 @@ function ApproveHazard() {
     return { day, month, year, time };
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setShowConfirmModal(true); // Show the confirmation modal
+  };
+
+  const handleConfirm = () => {
+    setShowConfirmModal(false);
+    // Proceed with the form submission
+    submitData();
+  };
+
+  const handleCancel = () => {
+    setShowConfirmModal(false);
+  };
+
+  const submitData = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/api/hazard', {
+      // Perform the POST request
+      const postResponse = await axios.post('http://localhost:4000/api/hazard', {
         locationName: inputLocation,
         hazardType: inputHazard
       });
-      console.log(response.data); // Log response data
-      setSuccessMessage('Hazard data saved successfully!');
+      console.log('POST response:', postResponse.data); // Log response data
+  
+      // Check if a hazard ID is selected for deletion
+      if (selectedHazardId) {
+        // Perform the DELETE request
+        await axios.delete(`http://localhost:4000/api/locomotivePilotHazard/hazardID/${selectedHazardId}`);
+        console.log('DELETE successful'); // Log success message
+      }
+  
+      // Update state after successful operations
+      setSuccessMessage('Hazard data saved successfully and hazard deleted if applicable!');
       setErrorMessage('');
       setInputLocation('');
       setInputHazard('');
+  
+      // Navigate to a different page if needed
+      navigate('/adminhomepage');
+  
     } catch (error) {
-      console.error('Hazard Reporting failed:', error);
+      console.error('Operation failed:', error);
       if (error.response && error.response.data && error.response.data.error) {
         setErrorMessage(error.response.data.error); // Set error message from server response
       } else {
-        setErrorMessage('Failed to save hazard data. Please try again.'); // Set a generic error message
+        setErrorMessage('Failed to save hazard data or delete hazard. Please try again.'); // Set a generic error message
       }
       setSuccessMessage('');
       setShowErrorModal(true); // Show error modal
     }
   };
+  
+
+  const handleDecline = () => {
+    if (!selectedHazardId) {
+      setErrorMessage('No hazard selected for deletion.');
+      return;
+    }
+    setShowDeclineConfirmModal(true); // Show confirmation modal
+  };
+
+  const handleDeclineConfirm = async () => {
+    setShowDeclineConfirmModal(false);
+    try {
+      await axios.delete(`http://localhost:4000/api/locomotivePilotHazard/hazardID/${selectedHazardId}`);
+      setSuccessMessage('Hazard deleted successfully!');
+      setNotifications(notifications.filter(notification => notification.hazardID !== selectedHazardId));
+      setSelectedHazardId(null);
+      navigate('/adminhomepage');
+      
+    } catch (error) {
+      console.error('Error deleting hazard:', error);
+      setErrorMessage('Failed to delete hazard. Please try again.');
+    }
+  };
+
+  const handleDeclineCancel = () => setShowDeclineConfirmModal(false);
+  
 
   const handleCloseErrorModal = () => setShowErrorModal(false);
 
@@ -300,11 +346,15 @@ function ApproveHazard() {
                 <Button
                   variant="outline-dark"
                   className="ah-button"
-                  
+                  onClick={handleDecline}
                 >
                   Decline
                 </Button>
               </div>
+            </form>
+
+            <form onSubmit={handleDecline}>
+
             </form>
 
             <div className="ah-box button-box container-flex">
@@ -330,6 +380,7 @@ function ApproveHazard() {
             <Button variant="success" onClick={() => setSuccessMessage('')}>
               Close
             </Button>
+            
           </Modal.Footer>
         </Modal>
       )}
@@ -356,13 +407,46 @@ function ApproveHazard() {
           {notifications.map((notification, index) => (
             <div key={index} className="notification-item">
               <p>{`Hazard Reporting ${index + 1}`}</p>
-              <Button variant="outline-success" onClick={() => markAsRead(notification.hazardID, notification.locomotivePilotID)}>
+              <Button variant="outline-success" onClick={() => markAsRead(notification.hazardID)}>
                 View Report
               </Button>
             </div>
           ))}
         </Modal.Body>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal show={showConfirmModal} onHide={handleCancel}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to save the data?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button variant="success" onClick={handleConfirm}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+      <Modal show={showDeclineConfirmModal} onHide={handleDeclineCancel}>
+  <Modal.Header closeButton>
+    <Modal.Title>Confirm Decline</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>Are you sure you want to delete this hazard?</Modal.Body>
+  <Modal.Footer>
+    <Button variant="danger" onClick={handleDeclineCancel}>
+      Cancel
+    </Button>
+    <Button variant="success" onClick={handleDeclineConfirm}>
+      Confirm
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </>
   );
 }

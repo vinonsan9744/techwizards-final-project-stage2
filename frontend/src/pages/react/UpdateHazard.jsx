@@ -30,8 +30,6 @@ function UpdateHazard() {
   // const [locationHazards, setLocationHazards] = useState([]);
   const [selectedHazard, setSelectedHazard] = useState('');
  
-
-
   // Fetch location types on component mount
   useEffect(() => {
     const fetchLocationTypes = async () => {
