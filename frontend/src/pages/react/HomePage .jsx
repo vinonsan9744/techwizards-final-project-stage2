@@ -14,6 +14,10 @@ function HomePage() {
   const [isGreen, setIsGreen] = useState(false);
   const [time, setTime] = useState(new Date()); // State to hold current time
   const [location, setLocation] = useState("Fetching location...");
+  const [weather, setWeather] = useState({
+    temperature: 0,
+    chance_of_rain: 0,
+  });
 
   const handleButtonClick = () => {
     setIsContentVisible(!isContentVisible);
@@ -22,6 +26,7 @@ function HomePage() {
  
  // Replace with your OpenCage API key
  const apiKey = "4ac19be725954e2ca4bebbd099e34f09"; 
+ let weatherapikey="422e1d8e08dad104d47a623408c8f5a1";
 
  // Function to get the city name from OpenCage API
 // Function to get the village name from OpenCage API
@@ -89,7 +94,26 @@ const getLocationName = async (latitude, longitude) => {
    }
  }, []);
 
-  
+ const fetchWeatherData = async (city) => {
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherapikey}&units=metric`
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Weather API Response: ", data);
+    
+    // Set weather data
+    setWeather({
+      temperature: data.main.temp,
+      chance_of_rain: data.weather[0].main === "Rain" ? 100 : 0, // Just an example; refine this logic as needed
+    });
+  } catch (error) {
+    console.error("Error fetching weather data: ", error);
+  }
+};
 
   // Format the time and date
   const formattedDate = time.toLocaleDateString("en-GB", {
@@ -140,12 +164,12 @@ const getLocationName = async (latitude, longitude) => {
                                
                               </div>
                               <div className="HomePage-left-top-side-content-weather-box container-flex">
-                                <h6>chance of rain 88%</h6>
+                                <h6>chance of rain {weather.chance_of_rain}%</h6>
                               </div>
                               <div className="HomePage-left-top-side-content-weather2-box container-flex">
                                 <div className="row">
                                   <div className="HomePage-left-top-side-content-temperature-box container-flex">
-                                    <h6>30 C</h6>
+                                  <h6>{weather.temperature}°C</h6>
                                   </div>
                                   <div className="HomePage-left-top-side-content-rain-box container-flex">
                                     <div className="row">
