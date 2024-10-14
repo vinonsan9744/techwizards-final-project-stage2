@@ -37,7 +37,7 @@ function ResetPassword()
         </Form.Floating>
       
         <Button variant="#387373" className="ResetPassword-sumbit-button">Reset </Button>{' '}
-        <div className="ResetPassword-back"><p  onClick={() => navigate('/')}>Back to login</p> </div>
+        <div className="ResetPassword-back"><p  onClick={() => navigate('/')}>Back to login?</p> </div>
      
 
           </div>

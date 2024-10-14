@@ -19,6 +19,9 @@ import AdminHazardLocation from "./pages/react/AdminHazardLocation ";
 import UpdateHazard from "./pages/react/UpdateHazard";
 import Checking from "./pages/react/Checking";
 import AdminViewHazardLocation from "./pages/react/AdminViewHazardLocation";
+import HazardUpdateAutomatically from "./pages/react/HazardUpdateAutomatically";
+
+
 
 const router = createBrowserRouter([
   {
@@ -77,6 +80,11 @@ const router = createBrowserRouter([
     path: "/check",
     element: <Checking />,
   },
+  {
+    path: "/hazardupdate",
+    element: <HazardUpdateAutomatically />,
+  },
+  
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
