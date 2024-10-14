@@ -13,7 +13,7 @@ function HomePage() {
   const [isContentVisible, setIsContentVisible] = useState(true);
   const [isGreen, setIsGreen] = useState(false);
   const [time, setTime] = useState(new Date()); // State to hold current time
-  const [location, setLocation] = useState("Fetching location...");
+  const [location, setLocation] = useState("jaffna");
   const [weather, setWeather] = useState({
     temperature: 0,
     chance_of_rain: 0,
@@ -24,96 +24,98 @@ function HomePage() {
     setIsGreen(!isGreen);
   };
  
- // Replace with your OpenCage API key
- const apiKey = "4ac19be725954e2ca4bebbd099e34f09"; 
- let weatherapikey="422e1d8e08dad104d47a623408c8f5a1";
+  const apiKey = "4ac19be725954e2ca4bebbd099e34f09"; 
+  const weatherApiKey = "422e1d8e08dad104d47a623408c8f5a1";
+  
 
- // Function to get the city name from OpenCage API
-// Function to get the village name from OpenCage API
-const getLocationName = async (latitude, longitude) => {
-  try {
-    const response = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
-    );
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+  // Function to get the village name from OpenCage API
+  const getLocationName = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Reverse Geocoding API Response: ", data);
+
+      if (data.results.length > 0) {
+        const components = data.results[0].components;
+        const village = components.village || components.suburb || components.locality || "Village not found";
+        setLocation(village);
+      } else {
+        setLocation("Village not found");
+      }
+    } catch (error) {
+      console.error("Error fetching location name: ", error);
+      setLocation("Unable to retrieve village name");
     }
-    const data = await response.json();
-    console.log("Reverse Geocoding API Response: ", data);
+  };
 
-    if (data.results.length > 0) {
-      // Access components to find village name
-      const components = data.results[0].components;
-      const village = components.village || components.suburb || components.locality || "Village not found"; // Check for village, suburb, or locality
-      setLocation(village);  // Set the village name as the location
+  // Fallback to IP-based location if geolocation fails
+  const getIpLocation = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      console.log("IP-based location: ", data);
+      if (data.city && data.country_name) {
+        setLocation(`${data.city}, ${data.country_name}`);
+      } else {
+        setLocation("Unable to determine location based on IP.");
+      }
+    } catch (error) {
+      console.error("Error fetching IP-based location: ", error);
+      setLocation("Unable to retrieve location");
+    }
+  };
+
+  const fetchWeatherData = async (city) => {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Weather API Response: ", data);
+      
+      // Set weather data
+      setWeather({
+        temperature: Math.round(data.main.temp),
+        chance_of_rain: data.weather[0].main === "Rain" ? 100 : 0, // Update this logic as needed
+      });
+    } catch (error) {
+      console.error("Error fetching weather data: ", error);
+    }
+  };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log(`Lat: ${latitude}, Lon: ${longitude}`);
+          getLocationName(latitude, longitude);
+        },
+        (error) => {
+          console.error("Geolocation error: ", error);
+          getIpLocation();
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     } else {
-      setLocation("Village not found");
+      getIpLocation();
     }
-  } catch (error) {
-    console.error("Error fetching location name: ", error);
-    setLocation("Unable to retrieve village name");
-  }
-};
+  }, []);
 
- // Fallback to IP-based location if geolocation fails
- const getIpLocation = async () => {
-   try {
-     const response = await fetch('https://ipapi.co/json/');
-     const data = await response.json();
-     console.log("IP-based location: ", data);
-     if (data.city && data.country_name) {
-       setLocation(`${data.city}, ${data.country_name}`);
-     } else {
-       setLocation("Unable to determine location based on IP.");
-     }
-   } catch (error) {
-     console.error("Error fetching IP-based location: ", error);
-     setLocation("Unable to retrieve location");
-   }
- };
-
- useEffect(() => {
-   if (navigator.geolocation) {
-     navigator.geolocation.getCurrentPosition(
-       (position) => {
-         const { latitude, longitude } = position.coords;
-         console.log(`Lat: ${latitude}, Lon: ${longitude}`);
-         // Use OpenCage API to get the location name
-         getLocationName(latitude, longitude);
-       },
-       (error) => {
-         console.error("Geolocation error: ", error);
-         // If geolocation fails, fallback to IP-based location
-         getIpLocation();
-       },
-       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-     );
-   } else {
-     // If Geolocation API is not supported, fallback to IP-based location
-     getIpLocation();
-   }
- }, []);
-
- const fetchWeatherData = async (city) => {
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherapikey}&units=metric`
-    );
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log("Weather API Response: ", data);
-    
-    // Set weather data
-    setWeather({
-      temperature: data.main.temp,
-      chance_of_rain: data.weather[0].main === "Rain" ? 100 : 0, // Just an example; refine this logic as needed
-    });
-  } catch (error) {
-    console.error("Error fetching weather data: ", error);
-  }
-};
+  // Fetch weather data based on location or default city
+  useEffect(() => {
+    if (location) {
+      fetchWeatherData(location);
+    } 
+  }, [location]);
 
   // Format the time and date
   const formattedDate = time.toLocaleDateString("en-GB", {
@@ -126,6 +128,7 @@ const getLocationName = async (latitude, longitude) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+
 
   return (
     <>
