@@ -13,69 +13,83 @@ function HomePage() {
   const [isContentVisible, setIsContentVisible] = useState(true);
   const [isGreen, setIsGreen] = useState(false);
   const [time, setTime] = useState(new Date()); // State to hold current time
-  const [location, setLocation] = useState("Loading..."); // State to hold location
+  const [location, setLocation] = useState("Fetching location...");
 
   const handleButtonClick = () => {
     setIsContentVisible(!isContentVisible);
     setIsGreen(!isGreen);
   };
+ 
+ // Replace with your OpenCage API key
+ const apiKey = "4ac19be725954e2ca4bebbd099e34f09"; 
 
-  // Updated Location fetching code with better error handling
-useEffect(() => {
-  const getLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          const apiKey = "422e1d8e08dad104d47a623408c8f5a1"; // Make sure to replace with a valid key
-          try {
-            const response = await fetch(
-              `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
-            );
-            console.log("Response URL: ", response.url); // Log the URL to verify correctness
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log("API Response Data: ", data); // Log the API response data
-            if (data.results.length > 0) {
-              setLocation(data.results[0].formatted_address); // Set the location to the state
-            } else {
-              setLocation("Location not found");
-            }
-          } catch (error) {
-            console.error("Error fetching location: ", error);
-            setLocation("Unable to retrieve location");
-          }
-        },
-        (error) => {
-          // Improved error handling
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              setLocation("User denied the request for Geolocation.");
-              break;
-            case error.POSITION_UNAVAILABLE:
-              setLocation("Location information is unavailable.");
-              break;
-            case error.TIMEOUT:
-              setLocation("The request to get user location timed out.");
-              break;
-            case error.UNKNOWN_ERROR:
-              setLocation("An unknown error occurred.");
-              break;
-          }
-          console.error("Geolocation error: ", error);
-        }
-      );
-    } else {
-      setLocation("Geolocation not supported");
+ // Function to get the city name from OpenCage API
+// Function to get the village name from OpenCage API
+const getLocationName = async (latitude, longitude) => {
+  try {
+    const response = await fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
     }
-  };
+    const data = await response.json();
+    console.log("Reverse Geocoding API Response: ", data);
 
-  getLocation();
-}, []); // Run this effect only once when the component mounts
+    if (data.results.length > 0) {
+      // Access components to find village name
+      const components = data.results[0].components;
+      const village = components.village || components.suburb || components.locality || "Village not found"; // Check for village, suburb, or locality
+      setLocation(village);  // Set the village name as the location
+    } else {
+      setLocation("Village not found");
+    }
+  } catch (error) {
+    console.error("Error fetching location name: ", error);
+    setLocation("Unable to retrieve village name");
+  }
+};
 
+ // Fallback to IP-based location if geolocation fails
+ const getIpLocation = async () => {
+   try {
+     const response = await fetch('https://ipapi.co/json/');
+     const data = await response.json();
+     console.log("IP-based location: ", data);
+     if (data.city && data.country_name) {
+       setLocation(`${data.city}, ${data.country_name}`);
+     } else {
+       setLocation("Unable to determine location based on IP.");
+     }
+   } catch (error) {
+     console.error("Error fetching IP-based location: ", error);
+     setLocation("Unable to retrieve location");
+   }
+ };
 
+ useEffect(() => {
+   if (navigator.geolocation) {
+     navigator.geolocation.getCurrentPosition(
+       (position) => {
+         const { latitude, longitude } = position.coords;
+         console.log(`Lat: ${latitude}, Lon: ${longitude}`);
+         // Use OpenCage API to get the location name
+         getLocationName(latitude, longitude);
+       },
+       (error) => {
+         console.error("Geolocation error: ", error);
+         // If geolocation fails, fallback to IP-based location
+         getIpLocation();
+       },
+       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+     );
+   } else {
+     // If Geolocation API is not supported, fallback to IP-based location
+     getIpLocation();
+   }
+ }, []);
+
+  
 
   // Format the time and date
   const formattedDate = time.toLocaleDateString("en-GB", {
@@ -123,6 +137,7 @@ useEffect(() => {
                               </div>
                               <div className="HomePage-left-top-side-content-location-box container-flex">
                                 <h6>{location}</h6>
+                               
                               </div>
                               <div className="HomePage-left-top-side-content-weather-box container-flex">
                                 <h6>chance of rain 88%</h6>
