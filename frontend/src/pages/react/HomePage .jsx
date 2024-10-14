@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
 import "./../style/HomePage .css";
 import { FaCloudRain } from "react-icons/fa6";
 import { FaWind } from "react-icons/fa";
@@ -12,11 +12,82 @@ function HomePage() {
   const navigate = useNavigate();
   const [isContentVisible, setIsContentVisible] = useState(true);
   const [isGreen, setIsGreen] = useState(false);
+  const [time, setTime] = useState(new Date()); // State to hold current time
+  const [location, setLocation] = useState("Loading..."); // State to hold location
 
   const handleButtonClick = () => {
     setIsContentVisible(!isContentVisible);
     setIsGreen(!isGreen);
   };
+
+  // Updated Location fetching code with better error handling
+useEffect(() => {
+  const getLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const apiKey = "422e1d8e08dad104d47a623408c8f5a1"; // Make sure to replace with a valid key
+          try {
+            const response = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
+            );
+            console.log("Response URL: ", response.url); // Log the URL to verify correctness
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("API Response Data: ", data); // Log the API response data
+            if (data.results.length > 0) {
+              setLocation(data.results[0].formatted_address); // Set the location to the state
+            } else {
+              setLocation("Location not found");
+            }
+          } catch (error) {
+            console.error("Error fetching location: ", error);
+            setLocation("Unable to retrieve location");
+          }
+        },
+        (error) => {
+          // Improved error handling
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              setLocation("User denied the request for Geolocation.");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              setLocation("Location information is unavailable.");
+              break;
+            case error.TIMEOUT:
+              setLocation("The request to get user location timed out.");
+              break;
+            case error.UNKNOWN_ERROR:
+              setLocation("An unknown error occurred.");
+              break;
+          }
+          console.error("Geolocation error: ", error);
+        }
+      );
+    } else {
+      setLocation("Geolocation not supported");
+    }
+  };
+
+  getLocation();
+}, []); // Run this effect only once when the component mounts
+
+
+
+  // Format the time and date
+  const formattedDate = time.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const formattedTime = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
     <>
@@ -45,13 +116,13 @@ function HomePage() {
                           isContentVisible && (
                             <div className="row">
                               <div className="HomePage-left-top-side-content-date-box container-flex">
-                                <h6>23 July 2024, Friday</h6>
+                                <h6>{formattedDate}</h6>
                               </div>
                               <div className="HomePage-left-top-side-content-time-box container-flex">
-                                <h6>01:30 pm</h6>
+                                <h6>{formattedTime}</h6>
                               </div>
                               <div className="HomePage-left-top-side-content-location-box container-flex">
-                                <h6>Anuradhapura New town</h6>
+                                <h6>{location}</h6>
                               </div>
                               <div className="HomePage-left-top-side-content-weather-box container-flex">
                                 <h6>chance of rain 88%</h6>
